@@ -8,6 +8,7 @@ const imagemin = require('gulp-imagemin');
 const clean = require('gulp-clean');
 const runSequence = require('run-sequence');
 const changed = require('gulp-changed');
+const rename = require("gulp-rename");
 
 gulp.task('less', function () {
     return gulp.src('./src/less/styles.less')
@@ -20,7 +21,6 @@ gulp.task('less', function () {
             browsers: ['last 2 versions'],
             cascade: false
         }))
-        .pipe(gulp.dest('src/css'))
         .pipe(gulp.dest('build/css'))
         .pipe(browserSync.reload({
                 stream: true
@@ -42,15 +42,21 @@ gulp.task('browserSync', function() {
 });
 
 gulp.task('buildStyles',function () {
-    return gulp.src('./src/less/**/*.less')
+    return gulp.src('./src/less/styles.less')
         .pipe(less())
+        .on('error', function (err) {
+            console.log(err.toString());
+            this.emit('end');
+        })
         .pipe(autoprefixer({
             browsers: ['last 2 versions'],
             cascade: false
         }))
-        .pipe(gulp.dest('./src/css'))
+        .pipe(gulp.dest('build/css'))
         .pipe(cssnano())
-        .pipe(gulp.dest('./build/css'))
+        .pipe(rename('styles.min.css'))
+        .pipe(gulp.dest('build/css'))
+
 });
 
 gulp.task('images', function () {
